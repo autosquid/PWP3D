@@ -95,6 +95,7 @@ Utils/HistogramEngine.cpp
 Utils/ImageUtils.cpp
 Utils/MathUtils.cpp
 Utils/VisualisationEngine.cpp
+PerseusLibTest.cpp
 )
 
 
@@ -186,23 +187,21 @@ cuda_compile(cu_gen SHARED ${SRC_CU})
 
 message("compiled cuda" ${cu_gen})
 
-cuda_add_library( ${LIBRARY_NAME} SHARED ${SRC_H} ${SRC_CPP} ${cu_gen} OPTIONS ${GENCODE_SM21} ${VERBOSE_PTXAS})
+CUDA_ADD_EXECUTABLE( ${LIBRARY_NAME} ${SRC_H} ${SRC_CPP} ${cu_gen} OPTIONS ${GENCODE_SM21} ${VERBOSE_PTXAS})
 
-message("cuda lib " ${LIBRARY_NAME} )
-
-target_link_libraries(${LIBRARY_NAME} ${LINK_LIBS})
+target_link_libraries( ${LIBRARY_NAME} ${LINK_LIBS})
 
 ## Generate symbol export helper header on MSVC
-if(MSVC)
-    string(TOUPPER ${LIBRARY_NAME} LIBRARY_NAME_CAPS)
-    include(GenerateExportHeader)
-    generate_export_header( ${LIBRARY_NAME}
-        BASE_NAME ${LIBRARY_NAME_CAPS}
-        EXPORT_MACRO_NAME ${LIBRARY_NAME_CAPS}_EXPORT
-        EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_export.h"
-        STATIC_DEFINE ${LIBRARY_NAME_CAPS}_BUILT_AS_STATIC
-    )
-endif()
+#if(MSVC)
+#    string(TOUPPER ${LIBRARY_NAME} LIBRARY_NAME_CAPS)
+    #include(GenerateExportHeader)
+    #generate_export_header( ${LIBRARY_NAME}
+    #    BASE_NAME ${LIBRARY_NAME_CAPS}
+    #    EXPORT_MACRO_NAME ${LIBRARY_NAME_CAPS}_EXPORT
+    #    EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_export.h"
+    #    STATIC_DEFINE ${LIBRARY_NAME_CAPS}_BUILT_AS_STATIC
+    #)
+#endif()
 
 
 #######################################################
@@ -232,7 +231,8 @@ configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake" @ONLY )
 
 # Add package to CMake package registery for use from the build tree
-export( PACKAGE ${PROJECT_NAME} )
+# export( PACKAGE ${PROJECT_NAME} )
+
 
 #######################################################
 ## Install headers / targets
@@ -240,9 +240,11 @@ export( PACKAGE ${PROJECT_NAME} )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h"
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}
 )
+
 install(FILES ${SRC_H}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}
 )
+
 install(TARGETS ${LIBRARY_NAME}
   EXPORT "${PROJECT_NAME}Targets"
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
@@ -253,9 +255,9 @@ install(TARGETS ${LIBRARY_NAME}
 #######################################################
 ## Install CMake config
 
-INSTALL(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-    DESTINATION ${CMAKECONFIG_INSTALL_DIR} )
+# INSTALL(
+#    FILES "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
+#          "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+#    DESTINATION ${CMAKECONFIG_INSTALL_DIR} )
 
-install( EXPORT "${PROJECT_NAME}Targets" DESTINATION ${CMAKECONFIG_INSTALL_DIR} )
+#install( EXPORT "${PROJECT_NAME}Targets" DESTINATION ${CMAKECONFIG_INSTALL_DIR} )
