@@ -16,7 +16,7 @@ struct CUDAData
   float *dtZImage;
   int *dtImagePosYT1;
   float *dtImageT1;
-
+  
   float *hKernelConvolution;
 
   cudaArray *arrayHeaviside;

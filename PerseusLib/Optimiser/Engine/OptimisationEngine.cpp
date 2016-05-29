@@ -26,7 +26,7 @@ void OptimisationEngine::Initialise(int width, int height)
 
   this->SetPresetStepSizes();
 
-  MathUtils::Instance()->ReadAndAllocateHeaviside(8192, "F:/PWP3D/Files/Others/heaviside.txt");
+  MathUtils::Instance()->ReadAndAllocateHeaviside(8192, "C:/Users/Justin/workspace/PWP3D/Files/Others/heaviside.txt");
 
   initialiseCUDA(width, height, MathUtils::Instance()->heavisideFunction, MathUtils::Instance()->heavisideSize);
 

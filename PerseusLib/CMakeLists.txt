@@ -110,8 +110,8 @@ set(HAVE_NPP 1)
 
 #set(CUDA_HOST_COMPILATION_CPP ON)
 
-# Dont propogate host flags into CUDA environment.
-set(CUDA_PROPAGATE_HOST_FLAGS off)
+#  propogate host flags into CUDA environment.
+set(CUDA_PROPAGATE_HOST_FLAGS ON)
 
 message("cuda libs:" ${CUDA_LIBRARIES})
 # Generate code for 2.1
@@ -181,27 +181,23 @@ message("cuda use static cuda runtime" ${CUDA_USE_STATIC_CUDA_RUNTIME})
 set(GENCODE_SM21 -gencode=arch=compute_20,code=sm_21 -gencode=arch=compute_20,code=compute_20)
 set(VERBOSE_PTXAS --ptxas-options=-v)
 
-message("which rt" ${CUDA_LIBRARIES})
-
 cuda_compile(cu_gen SHARED ${SRC_CU})
-
-message("compiled cuda" ${cu_gen})
 
 CUDA_ADD_EXECUTABLE( ${LIBRARY_NAME} ${SRC_H} ${SRC_CPP} ${cu_gen} OPTIONS ${GENCODE_SM21} ${VERBOSE_PTXAS})
 
 target_link_libraries( ${LIBRARY_NAME} ${LINK_LIBS})
 
 ## Generate symbol export helper header on MSVC
-#if(MSVC)
-#    string(TOUPPER ${LIBRARY_NAME} LIBRARY_NAME_CAPS)
-    #include(GenerateExportHeader)
-    #generate_export_header( ${LIBRARY_NAME}
-    #    BASE_NAME ${LIBRARY_NAME_CAPS}
-    #    EXPORT_MACRO_NAME ${LIBRARY_NAME_CAPS}_EXPORT
-    #    EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_export.h"
-    #    STATIC_DEFINE ${LIBRARY_NAME_CAPS}_BUILT_AS_STATIC
-    #)
-#endif()
+if(MSVC)
+    string(TOUPPER ${LIBRARY_NAME} LIBRARY_NAME_CAPS)
+    include(GenerateExportHeader)
+    generate_export_header( ${LIBRARY_NAME}
+        BASE_NAME ${LIBRARY_NAME_CAPS}
+       EXPORT_MACRO_NAME ${LIBRARY_NAME_CAPS}_EXPORT
+        EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_export.h"
+        STATIC_DEFINE ${LIBRARY_NAME_CAPS}_BUILT_AS_STATIC
+    )
+endif()
 
 
 #######################################################

@@ -1,4 +1,4 @@
-#include "../PerseusLib/PerseusLib.h"F:/PWP3D
+#include "../PerseusLib/PerseusLib.h"C:/Users/Justin/workspace/PWP3D
 
 #include "Utils/Timer.h"
 #include <opencv2/opencv.hpp>
@@ -7,200 +7,212 @@ using namespace Perseus::Utils;
 
 int main(void)
 {
-    std::string sModelPath = "F:/PWP3D/Files/Models/Renderer/long.obj";
-   std::string sSrcImage = "F:/PWP3D/Files/Images/Red.png";
- std::string sCameraMatrix = "F:/PWP3D/Files/CameraCalibration/900nc.cal";
-   std::string sTargetMask = "F:/PWP3D/Files/Masks/480p_All_VideoMask.png";
-  std::string sHistSrc = "F:/PWP3D/Files/Masks/Red_Source.png";
-  std::string sHistMask = "F:/PWP3D/Files/Masks/Red_Mask.png";
+	std::string sModelPath = "C:/Users/Justin/workspace/PWP3D/Files/Models/Renderer/long.obj"; // v
+	std::string sSrcImage = "C:/Users/Justin/workspace/PWP3D/Files/Images/Red.png"; //
+	std::string sCameraMatrix = "C:/Users/Justin/workspace/PWP3D/Files/CameraCalibration/900nc.cal"; //v
+	std::string sTargetMask = "C:/Users/Justin/workspace/PWP3D/Files/Masks/480p_All_VideoMask.png";
+	std::string sHistSrc = "C:/Users/Justin/workspace/PWP3D/Files/Masks/Red_Source.png";
+	std::string sHistMask = "C:/Users/Justin/workspace/PWP3D/Files/Masks/Red_Mask.png";
 
 
-  // blue car demo
-  //  std::string sModelPath = "/Users/luma/Code/DataSet/Mesh/BlueCar.obj";
-  //  std::string sSrcImage = "F:/PWP3D/Files/Images/248-LiveRGB.png";
-  //  std::string sCameraMatrix = "F:/PWP3D/Files/CameraCalibration/Kinect.cal";
-  //  std::string sTargetMask = "F:/PWP3D/Files/Masks/480p_All_VideoMask.png";
-  //  std::string sHistSrc = "F:/PWP3D/Files/Images/248-LiveRGB.png";
-  //  std::string sHistMask = "F:/PWP3D/Files/Masks/248-ID-3-LiveImage.png";
+	// blue car demo
+	//  std::string sModelPath = "/Users/luma/Code/DataSet/Mesh/BlueCar.obj";
+	//  std::string sSrcImage = "C:/Users/Justin/workspace/PWP3D/Files/Images/248-LiveRGB.png";
+	//  std::string sCameraMatrix = "C:/Users/Justin/workspace/PWP3D/Files/CameraCalibration/Kinect.cal";
+	//  std::string sTargetMask = "C:/Users/Justin/workspace/PWP3D/Files/Masks/480p_All_VideoMask.png";
+	//  std::string sHistSrc = "C:/Users/Justin/workspace/PWP3D/Files/Images/248-LiveRGB.png";
+	//  std::string sHistMask = "C:/Users/Justin/workspace/PWP3D/Files/Masks/248-ID-3-LiveImage.png";
 
-  // red can demo
-  //std::string sModelPath = "/Users/luma/Code/DataSet/Mesh/RedCan.obj";
- // std::string sSrcImage = "F:/PWP3D/Files/Images/248-LiveRGB.png";
-  //std::string sCameraMatrix = "F:/PWP3D/Files/CameraCalibration/Kinect.cal";
-  //std::string sTargetMask = "F:/PWP3D/Files/Masks/480p_All_VideoMask.png";
-  //std::string sHistSrc = "F:/PWP3D/Files/Images/248-LiveRGB.png";
- // std::string sHistMask = "F:/PWP3D/Files/Masks/248-ID-1-LiveImage.png";
+	// red can demo
+	//std::string sModelPath = "/Users/luma/Code/DataSet/Mesh/RedCan.obj";
+	// std::string sSrcImage = "C:/Users/Justin/workspace/PWP3D/Files/Images/248-LiveRGB.png";
+	//std::string sCameraMatrix = "C:/Users/Justin/workspace/PWP3D/Files/CameraCalibration/Kinect.cal";
+	//std::string sTargetMask = "C:/Users/Justin/workspace/PWP3D/Files/Masks/480p_All_VideoMask.png";
+	//std::string sHistSrc = "C:/Users/Justin/workspace/PWP3D/Files/Images/248-LiveRGB.png";
+	// std::string sHistMask = "C:/Users/Justin/workspace/PWP3D/Files/Masks/248-ID-1-LiveImage.png";
 
-  // ---------------------------------------------------------------------------
-  char str[100];
-  int i;
+	// ---------------------------------------------------------------------------
+	char str[100];
+	int i;
 
-  int width = 640, height = 480;
-  int viewCount = 1, objectCount = 1;
-  int objectId = 0, viewIdx = 0, objectIdx = 0;
+	// this is from image size
+	int width = 640, height = 480;
 
-  Timer t;
+	// fix view count
+	int viewCount = 1;
+	int objectCount = 1;
 
-  //result visualisation
-  ImageUChar4* ResultImage = new ImageUChar4(width, height);
+	int objectId = 0;
+	int viewIdx = 0;
+	int objectIdx = 0;
 
-  // ---------------------------------------------------------------------------
-  //input image
-  //camera = 24 bit colour rgb
-  ImageUChar4* camera = new ImageUChar4(width, height);
-  ImageUtils::Instance()->LoadImageFromFile(camera, (char*)sSrcImage.c_str());
+	Timer t;
 
-  //objects allocation + initialisation: 3d model in obj required
-  Object3D **objects = new Object3D*[objectCount];
+	//result visualisation
+	ImageUChar4* ResultImage = new ImageUChar4(width, height);
 
-  std::cout<<"\n==[APP] Init Model =="<<std::endl;
-  objects[objectIdx] = new Object3D(objectId, viewCount, (char*)sModelPath.c_str(), width, height);
+	// ---------------------------------------------------------------------------
+	//input image
+	//camera = 24 bit colour rgb
+	ImageUChar4* camera = new ImageUChar4(width, height);
+	ImageUtils::Instance()->LoadImageFromFile(camera, (char*)sSrcImage.c_str());
 
-  // ---------------------------------------------------------------------------
-  //views allocation + initialisation: camera calibration (artoolkit format) required
-  std::cout<<"\n==[APP] Init CameraMatrix =="<<std::endl;
-  View3D **views = new View3D*[viewCount];
-  views[viewIdx] = new View3D(0, (char*)sCameraMatrix.c_str(), width, height);
+	//objects allocation + initialisation: 3d model in obj required
+	Object3D **objects = new Object3D*[objectCount];
 
+	std::cout << "\n==[APP] Init Model ==" << std::endl;
+	objects[objectIdx] = new Object3D(objectId, viewCount, (char*)sModelPath.c_str(), width, height);
 
-  // ---------------------------------------------------------------------------
-  //histogram initialisation
-  //source = 24 bit colour rgb
-  //mask = 24 bit black/white png - white represents object
-  //videoMask = 24 bit black/white png - white represents parts of the image that are usable
-  std::cout<<"\n==[APP] Init Target ROI =="<<std::endl;
-  ImageUtils::Instance()->LoadImageFromFile(views[viewIdx]->videoMask,
-                                            (char*)sTargetMask.c_str());
-
-  ImageUtils::Instance()->LoadImageFromFile(objects[objectIdx]->histSources[viewIdx],
-                                            (char*)sHistSrc.c_str());
-
-  ImageUtils::Instance()->LoadImageFromFile(objects[objectIdx]->histMasks[viewIdx],
-                                            (char*)sHistMask.c_str(), objectIdx+1);
-
-  HistogramEngine::Instance()->UpdateVarBinHistogram(
-        objects[objectIdx], views[viewIdx], objects[objectIdx]->histSources[viewIdx],
-        objects[objectIdx]->histMasks[viewIdx], views[viewIdx]->videoMask);
+	// ---------------------------------------------------------------------------
+	//views allocation + initialisation: camera calibration (artoolkit format) required
+	std::cout << "\n==[APP] Init CameraMatrix ==" << std::endl;
+	View3D **views = new View3D*[viewCount];
+	views[viewIdx] = new View3D(0, (char*)sCameraMatrix.c_str(), width, height);
 
 
-  // ---------------------------------------------------------------------------
-  //iteration configuration for one object
-  IterationConfiguration *iterConfig = new IterationConfiguration();
-  iterConfig->width = width; iterConfig->height = height;
-  iterConfig->iterViewIds[viewIdx] = 0;
-  iterConfig->iterObjectCount[viewIdx] = 1;
-  iterConfig->levelSetBandSize = 8;
-  iterConfig->iterObjectIds[viewIdx][objectIdx] = 0;
-  iterConfig->iterViewCount = 1;
-  iterConfig->iterCount = 1;
+	// ---------------------------------------------------------------------------
+	//histogram initialisation
+	//source = 24 bit colour rgb
+	//mask = 24 bit black/white png - white represents object
+	//videoMask = 24 bit black/white png - white represents parts of the image that are usable
+	std::cout << "\n==[APP] Init Target ROI ==" << std::endl;
+	ImageUtils::Instance()->LoadImageFromFile(views[viewIdx]->videoMask,
+		(char*)sTargetMask.c_str());
 
-  //step size per object and view
-  objects[objectIdx]->stepSize[viewIdx] = new StepSize3D(0.2f, 0.5f, 0.5f, 10.0f);
+	ImageUtils::Instance()->LoadImageFromFile(objects[objectIdx]->histSources[viewIdx],
+		(char*)sHistSrc.c_str());
 
-  //initial pose per object and view
-  // Notice the input pose here is angle, not radians for the rotation part
-  //  objects[objectIdx]->initialPose[viewIdx]->SetFrom(
-  //        -1.98f, -2.90f, 37.47f, -40.90f, -207.77f, 27.48f);
+	ImageUtils::Instance()->LoadImageFromFile(objects[objectIdx]->histMasks[viewIdx],
+		(char*)sHistMask.c_str(), objectIdx + 1);
 
-  // for blue car demo
-  //  objects[objectIdx]->initialPose[viewIdx]->SetFrom( -3.0f,-4.5f,28.f, -220.90f, -207.77f, 87.48f);
+	//?? how to update??
+	HistogramEngine::Instance()->UpdateVarBinHistogram(
+		objects[objectIdx], views[viewIdx], objects[objectIdx]->histSources[viewIdx],
+		objects[objectIdx]->histMasks[viewIdx], views[viewIdx]->videoMask);
 
-  // for red can demo
-  objects[objectIdx]->initialPose[viewIdx]->SetFrom(
-        1.0f, 3.0f, 30.f, 180.f, 80.f, 60.f);
 
-  //primary initilisation
-  OptimisationEngine::Instance()->Initialise(width, height);
+	// ---------------------------------------------------------------------------
+	//iteration configuration for one object
+	IterationConfiguration *iterConfig = new IterationConfiguration();
+	iterConfig->width = width; iterConfig->height = height;
+	iterConfig->iterViewIds[viewIdx] = 0; //?? how to set this??
+	iterConfig->iterObjectCount[viewIdx] = 1;
+	iterConfig->levelSetBandSize = 8;
+	iterConfig->iterObjectIds[viewIdx][objectIdx] = 0; //???
+	iterConfig->iterViewCount = 1; //to change
+	iterConfig->iterCount = 1;
 
-  //register camera image with main engine
-  OptimisationEngine::Instance()->RegisterViewImage(views[viewIdx], camera);
+	//step size per object and view
+	objects[objectIdx]->stepSize[viewIdx] = new StepSize3D(0.2f, 0.5f, 0.5f, 10.0f);
 
-  // ---------------------------------------------------------------------------
-  std::cout<<"\n==[APP] Rendering object initial pose.. =="<<std::endl;
-  VisualisationEngine::Instance()->GetImage(
-        ResultImage, GETIMAGE_PROXIMITY,
-        objects[objectIdx], views[viewIdx],
-        objects[objectIdx]->initialPose[viewIdx]);
+	//initial pose per object and view
+	// Notice the input pose here is angle, not radians for the rotation part
+	//  objects[objectIdx]->initialPose[viewIdx]->SetFrom(
+	//        -1.98f, -2.90f, 37.47f, -40.90f, -207.77f, 27.48f);
 
-  cv::Mat ResultMat(height,width,CV_8UC4, ResultImage->pixels);
-  cv::imshow("initial pose", ResultMat);
-  cv::waitKey(1000);
+	// for blue car demo
+	//  objects[objectIdx]->initialPose[viewIdx]->SetFrom( -3.0f,-4.5f,28.f, -220.90f, -207.77f, 87.48f);
 
-  std::cout<<"[App] Finish Rendered object initial pose."<<std::endl;
+	// for red can demo
+	// todo set fromMatrix
+	objects[objectIdx]->initialPose[viewIdx]->SetFrom(
+		1.0f, 3.0f, 30.f, 180.f, 80.f, 60.f);
 
-  for (i=0; i<4; i++)
-  {
-    switch (i)
-    {
-    case 0:
-      iterConfig->useCUDAEF = true;
-      iterConfig->useCUDARender = true;
-      break;
-    case 1:
-      iterConfig->useCUDAEF = false;
-      iterConfig->useCUDARender = true;
-      break;
-    case 2:
-      iterConfig->useCUDAEF = true;
-      iterConfig->useCUDARender = false;
-      break;
-    case 3:
-      iterConfig->useCUDAEF = false;
-      iterConfig->useCUDARender = false;
-      break;
-    }
+	//primary initilisation
+	OptimisationEngine::Instance()->Initialise(width, height);
 
-    printf("======= mode: useCUDAAEF: %d, use CUDARender %d ========;\n",
-           iterConfig->useCUDAEF, iterConfig->useCUDARender);
+	//register camera image with main engine
+	// todo ??? how many ??
+	OptimisationEngine::Instance()->RegisterViewImage(views[viewIdx], camera);
 
-    sprintf(str, "F:/PWP3D/Files/Results/result%04d.png", i);
+	// ---------------------------------------------------------------------------
+	std::cout << "\n==[APP] Rendering object initial pose.. ==" << std::endl;
+	VisualisationEngine::Instance()->GetImage(
+		ResultImage, GETIMAGE_PROXIMITY,
+		objects[objectIdx], views[viewIdx],
+		objects[objectIdx]->initialPose[viewIdx]);
 
-    //main processing
-    t.restart();
-    OptimisationEngine::Instance()->Minimise(objects, views, iterConfig);
-    t.check("Iteration");
+	cv::Mat ResultMat(height, width, CV_8UC4, ResultImage->pixels);
+	cv::imshow("initial pose", ResultMat);
+	cv::waitKey(1000);
 
-    //result plot
-    VisualisationEngine::Instance()->GetImage(
-          ResultImage, GETIMAGE_PROXIMITY,
-          objects[objectIdx], views[viewIdx], objects[objectIdx]->pose[viewIdx]);
+	std::cout << "[App] Finish Rendered object initial pose." << std::endl;
 
-    //result save to file
-    //    ImageUtils::Instance()->SaveImageToFile(result, str);
-    cv::Mat ResultMat(height,width,CV_8UC4, ResultImage->pixels);
-    cv::imshow("result", ResultMat);
-    cv::waitKey(2000);
+	for (i = 0; i < 4; i++)
+	{
+		switch (i)
+		{
+		case 0:
+			iterConfig->useCUDAEF = true;
+			iterConfig->useCUDARender = true;
+			break;
+		case 1:
+			iterConfig->useCUDAEF = false;
+			iterConfig->useCUDARender = true;
+			break;
+		case 2:
+			iterConfig->useCUDAEF = true;
+			iterConfig->useCUDARender = false;
+			break;
+		case 3:
+			iterConfig->useCUDAEF = false;
+			iterConfig->useCUDARender = false;
+			break;
+		}
 
-    printf("final pose result %f %f %f %f %f %f %f\n\n",
-           objects[objectIdx]->pose[viewIdx]->translation->x,
-           objects[objectIdx]->pose[viewIdx]->translation->y,
-           objects[objectIdx]->pose[viewIdx]->translation->z,
-           objects[objectIdx]->pose[viewIdx]->rotation->vector4d.x,
-           objects[objectIdx]->pose[viewIdx]->rotation->vector4d.y,
-           objects[objectIdx]->pose[viewIdx]->rotation->vector4d.z,
-           objects[objectIdx]->pose[viewIdx]->rotation->vector4d.w);
-  }
+		printf("======= mode: useCUDAAEF: %d, use CUDARender %d ========;\n",
+			iterConfig->useCUDAEF, iterConfig->useCUDARender);
 
-  //posteriors plot
-  sprintf(str, "F:/PWP3D/Files/Results/posteriors.png");
-  VisualisationEngine::Instance()->GetImage(
-        ResultImage, GETIMAGE_POSTERIORS,
-        objects[objectIdx], views[viewIdx], objects[objectIdx]->pose[viewIdx]);
+		sprintf(str, "C:/Users/Justin/workspace/PWP3D/Files/Results/result%04d.png", i);
 
-  ImageUtils::Instance()->SaveImageToFile(ResultImage, str);
+		//main processing
+		t.restart();
+		OptimisationEngine::Instance()->Minimise(objects, views, iterConfig);
+		t.check("Iteration");
 
-  //primary engine destructor
-  OptimisationEngine::Instance()->Shutdown();
+		//result plot
+		VisualisationEngine::Instance()->GetImage(
+			ResultImage, GETIMAGE_PROXIMITY,
+			objects[objectIdx], views[viewIdx], objects[objectIdx]->pose[viewIdx]);
 
-  for (i = 0; i<objectCount; i++) delete objects[i];
-  delete objects;
+		//result save to file
+		//    ImageUtils::Instance()->SaveImageToFile(result, str);
+		cv::Mat ResultMat(height, width, CV_8UC4, ResultImage->pixels);
+		cv::imshow("result", ResultMat);
+		cv::waitKey(2000);
 
-  for (i = 0; i<viewCount; i++) delete views[i];
-  delete views;
+		printf("final pose result %f %f %f %f %f %f %f\n\n",
+			objects[objectIdx]->pose[viewIdx]->translation->x,
+			objects[objectIdx]->pose[viewIdx]->translation->y,
+			objects[objectIdx]->pose[viewIdx]->translation->z,
+			objects[objectIdx]->pose[viewIdx]->rotation->vector4d.x,
+			objects[objectIdx]->pose[viewIdx]->rotation->vector4d.y,
+			objects[objectIdx]->pose[viewIdx]->rotation->vector4d.z,
+			objects[objectIdx]->pose[viewIdx]->rotation->vector4d.w);
 
-  delete ResultImage;
+		break; // one is enough
+	}
 
-  std::cout<<"Exit pwp3D app successfully."<<std::endl;
+	//posteriors plot
+	sprintf(str, "C:/Users/Justin/workspace/PWP3D/Files/Results/posteriors.png");
+	VisualisationEngine::Instance()->GetImage(
+		ResultImage, GETIMAGE_POSTERIORS,
+		objects[objectIdx], views[viewIdx], objects[objectIdx]->pose[viewIdx]);
 
-  return 0;
+	ImageUtils::Instance()->SaveImageToFile(ResultImage, str);
+
+	//primary engine destructor
+	OptimisationEngine::Instance()->Shutdown();
+
+	for (i = 0; i < objectCount; i++) delete objects[i];
+	delete objects;
+
+	for (i = 0; i < viewCount; i++) delete views[i];
+	delete views;
+
+	delete ResultImage;
+
+	std::cout << "Exit pwp3D app successfully." << std::endl;
+
+	return 0;
 }
