@@ -178,7 +178,7 @@ message("cuda use static cuda runtime" ${CUDA_USE_STATIC_CUDA_RUNTIME})
 set (CUDA_VERBOSE_BUILD ON)
 message("cuda use static cuda runtime" ${CUDA_USE_STATIC_CUDA_RUNTIME})
 
-set(GENCODE_SM21 -gencode=arch=compute_20,code=sm_21 -gencode=arch=compute_20,code=compute_20)
+# set(GENCODE_SM21 -gencode=arch=compute_20,code=sm_21 -gencode=arch=compute_20,code=compute_20)
 set(VERBOSE_PTXAS --ptxas-options=-v)
 
 cuda_compile(cu_gen SHARED ${SRC_CU})

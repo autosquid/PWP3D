@@ -99,6 +99,8 @@ __host__ void initialiseConvolution(int width, int height)
 
   perseusSafeCall(cudaMemcpyToSymbol(dKernelConvolution, cudaData->hKernelConvolution, KERNEL_SIZE));
 }
+
+
 __host__ void shutdownConvolution()
 {
   free(cudaData->hKernelConvolution);
@@ -114,3 +116,4 @@ __host__ void computeDerivativeXY(float* function, float* derivativeX, float* de
   convolutionColumn<<<blockGridColumns, threadBlockColumns>>>( derivativeY, function, width, height,
                                                                COLUMN_TILE_WIDTH * threadBlockColumns.y, width * threadBlockColumns.y);
 }
+

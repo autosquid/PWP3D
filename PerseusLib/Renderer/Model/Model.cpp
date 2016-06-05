@@ -267,9 +267,12 @@ void Model::ToModelHInit(ModelH* newModel)
   newModel->verticesVectorPreP = new VFLOAT[newModel->verticesVectorSize * 4];
   newModel->minZ = this->minZ;
 
+
+
   if(newModel->groups->size()<=0)
   {
     std::cerr<<"[Model::ToModelHInit] Fail init 3D model. exit."<<std::endl;
+	std::cout << newModel->faceCount << ' ' << newModel->verticesVectorSize << std::endl;
     exit(-1);
   }
 

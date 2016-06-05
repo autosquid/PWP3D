@@ -1,7 +1,24 @@
 cmake_minimum_required( VERSION 2.8 )
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
+
+
+set(3rd_root  "${CMAKE_CURRENT_SOURCE_DIR}/3rd")
+
+
+
+set(ARMADILLO_DIR ${3rd_root}/armadillo-6.700.6)
+
+
+
+find_package(Armadillo REQUIRED)
+
+add_definitions("-DARMA_DONT_USE_CXX11")
+include_directories(
+  ${ARMADILLO_INCLUDE_DIRS}
+  )
 
 
 # Build Configures

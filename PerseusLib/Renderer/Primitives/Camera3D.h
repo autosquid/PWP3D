@@ -109,6 +109,7 @@ public:
     fscanf(f, "%f %f", &centerPoint[0], &centerPoint[1]);
     fclose(f);
 
+
     for (i=0; i<3; i++) for (j=0; j<4; j++) K[i][j] = 0;
     for (i=0; i<3; i++) for (j=0; j<4; j++) KGL[i][j] = 0;
 
