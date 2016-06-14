@@ -8,6 +8,6 @@ endif()
 find_package( PWP3D REQUIRED)
 include_directories( ${PWP3D_INCLUDE_DIRS})
 add_executable( PWP3DAPP  PerseusLibTest.cpp )
-target_link_libraries(PWP3DAPP ${PWP3D_LIBRARIES})
+target_link_libraries(PWP3DAPP ${PWP3D_LIBRARIES}   ${Boost_LIBRARIES})
 
 

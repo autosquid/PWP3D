@@ -12,7 +12,7 @@ public:
 
   View3DParams(void) {
     zBufferOffset = 0.0001f;
-    zFar = 500000000.0f;
+    zFar = 500000.0f;
     zNear = 0.01f;
   }
 

@@ -9,17 +9,21 @@ set(3rd_root  "${CMAKE_CURRENT_SOURCE_DIR}/3rd")
 
 
 
+
+
+set(BOOST_ROOT "C:/boost_1_61_0_vs12")
 set(ARMADILLO_DIR ${3rd_root}/armadillo-6.700.6)
 
-
-
+find_package(Boost REQUIRED COMPONENTS filesystem system random date_time regex thread log_setup log program_options)
 find_package(Armadillo REQUIRED)
 
 add_definitions("-DARMA_DONT_USE_CXX11")
 include_directories(
   ${ARMADILLO_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
   )
 
+message("boost: " ${Boost_INCLUDE_DIRS})
 
 # Build Configures
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall ")

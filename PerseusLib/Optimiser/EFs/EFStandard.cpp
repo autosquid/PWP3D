@@ -114,14 +114,16 @@ void EFStandard::GetFirstDerivativeValues_CPU_6DoF(Object3D ***objects, int *obj
         nhidx = int(4096 + 512 * dtIdx);
 
         // for a vaild pixel
-        if (nhidx >= 0 && nhidx < MathUtils::Instance()->heavisideSize)
-        {
-          heaviside = MathUtils::Instance()->heavisideFunction[nhidx];
+		if (nhidx >= 0 && nhidx < MathUtils::Instance()->heavisideSize)
+		{
+			heaviside = MathUtils::Instance()->heavisideFunction[nhidx];
 
-          r = view->imageRegistered->pixels[idx].x; g = view->imageRegistered->pixels[idx].y; b = view->imageRegistered->pixels[idx].z;
+			r = view->imageRegistered->pixels[idx].x; g = view->imageRegistered->pixels[idx].y; b = view->imageRegistered->pixels[idx].z;
 
-          object->histogramVarBin[viewId]->GetValue(&pYF, &pYB, r, g, b, i, j);
+			//
+			object->histogramVarBin[viewId]->GetValue(&pYF, &pYB, r, g, b, i, j);
 
+			
           pYF += 0.0000001f; pYB += 0.0000001f;
 
           dirac = (1.0f / float(PI)) * (1.0f / (dtIdx * dtIdx + 1.0f) + float(1e-3));
@@ -183,10 +185,10 @@ void EFStandard::GetFirstDerivativeValues_CPU_6DoF(Object3D ***objects, int *obj
 
     object->dpose[viewId]->SetFrom(dpose, 7);
 
-    //char rez[200];
-    //sprintf(rez, "%4.5f %4.5f %4.5f %4.5f %4.5f %4.5f %4.5f", object->dpose[viewId]->translation->x, object->dpose[viewId]->translation->y,
-    //	object->dpose[viewId]->translation->z, object->dpose[viewId]->rotation->vector4d.x, object->dpose[viewId]->rotation->vector4d.y,
-    //	object->dpose[viewId]->rotation->vector4d.z, object->dpose[viewId]->rotation->vector4d.w);
+    char rez[200];
+    sprintf(rez, "%4.5f %4.5f %4.5f %4.5f %4.5f %4.5f %4.5f", object->dpose[viewId]->translation->x, object->dpose[viewId]->translation->y,
+    	object->dpose[viewId]->translation->z, object->dpose[viewId]->rotation->vector4d.x, object->dpose[viewId]->rotation->vector4d.y,
+    	object->dpose[viewId]->rotation->vector4d.z, object->dpose[viewId]->rotation->vector4d.w);
 
     //DEBUGBREAK;
   }

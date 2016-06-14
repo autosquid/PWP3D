@@ -52,6 +52,8 @@ void OptimisationEngine::Shutdown()
 
 void OptimisationEngine::SetPresetStepSizes()
 {
+	//// from large to small, multi rouded.
+
   stepSizes[0]->tX = -0.005f; stepSizes[0]->tY = -0.005f; stepSizes[0]->tZ = -0.005f; stepSizes[0]->r = -0.0008f;
 
   stepSizes[1]->tX = -0.003f; stepSizes[1]->tY = -0.003f; stepSizes[1]->tZ = -0.003f; stepSizes[1]->r = -0.0003f;
@@ -75,6 +77,7 @@ void OptimisationEngine::Minimise(Object3D **objects, View3D **views, IterationC
 {
   int objectIdx, viewIdx, iterIdx;
 
+  ///////////// initialization
   this->iterConfig = iterConfig;
 
   viewCount = iterConfig->iterViewCount;
@@ -91,8 +94,10 @@ void OptimisationEngine::Minimise(Object3D **objects, View3D **views, IterationC
     this->objects[viewIdx][objectIdx]->UpdateRendererFromPose(views[viewIdx]);
   }
 
+  /////////// energey Function
   energyFunction = energyFunction_standard;
 
+  ////////// rouned iteration
   for (iterIdx=0; iterIdx< iterConfig->iterCount; iterIdx++)
   {
     this->RunOneMultiIteration(iterConfig);
@@ -136,12 +141,19 @@ void OptimisationEngine::MinimiseSingle(Object3D **objects, View3D **views, Iter
 void OptimisationEngine::RunOneMultiIteration(IterationConfiguration* iterConfig)
 {
   this->RunOneSingleIteration(stepSizes[0], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[1], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[2], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[3], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[4], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[5], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[6], iterConfig); if (this->HasConverged()) return;
+  this->NormaliseRotation();
   this->RunOneSingleIteration(stepSizes[7], iterConfig); if (this->HasConverged()) return;
 
   this->NormaliseRotation();
@@ -149,11 +161,14 @@ void OptimisationEngine::RunOneMultiIteration(IterationConfiguration* iterConfig
 
 void OptimisationEngine::RunOneSingleIteration(StepSize3D* presetStepSize, IterationConfiguration* iterConfig)
 {
+  auto pose = objects[0][0]->pose;
   energyFunction->PrepareIteration(objects, objectCount, views, viewCount, iterConfig);
 
+  pose = objects[0][0]->pose;
   // update the pose of the object
   energyFunction->GetFirstDerivativeValues(objects, objectCount, views, viewCount, iterConfig);
 
+  pose = objects[0][0]->pose;
   this->DescendWithGradient(presetStepSize, iterConfig);
 }
 
@@ -208,7 +223,11 @@ void OptimisationEngine::NormaliseRotation()
   int objectIdx, viewIdx;
   for (viewIdx = 0; viewIdx < viewCount; viewIdx++) for (objectIdx = 0; objectIdx < objectCount[viewIdx]; objectIdx++)
   {
+	auto pose = objects[viewIdx][objectIdx]->pose[viewIdx];
+	auto R = pose->rotation;
+	auto T = pose->translation;
     objects[viewIdx][objectIdx]->pose[viewIdx]->rotation->Normalize();
+	pose = objects[viewIdx][objectIdx]->pose[viewIdx];
     objects[viewIdx][objectIdx]->UpdateRendererFromPose(views[viewIdx]);
   }
 }

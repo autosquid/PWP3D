@@ -97,7 +97,7 @@ void HistogramEngine::BuildHistogramVarBin(HistogramVarBin *histogram, ImageUCha
 void HistogramEngine::UpdateVarBinHistogram(Object3D* object, View3D* view, ImageUChar4* originalImage, ImageUChar* mask)
 {
   ImageUtils::Instance()->Copy(mask, object->imageHistogramMask[view->viewId]);
-  this->BuildHistogramVarBin(object->histogramVarBin[view->viewId], mask, originalImage, object->objectId);
+  this->BuildHistogramVarBin(object->histogramVarBin[view->viewId], mask, originalImage, object->objectId); //a hist for each view.
   this->NormaliseHistogramVarBin(object->histogramVarBin[view->viewId]);
   object->histogramVarBin[view->viewId]->UpdateGPUFromCPU();
 }

@@ -118,6 +118,10 @@ public:
           vector4d.z * vector4d.z + vector4d.w * vector4d.w
           );
 
+	if (isfinite(norm) == false){
+		bool framed = true;
+	}
+
     vector4d.x *= norm; vector4d.y *= norm;
     vector4d.z *= norm; vector4d.w *= norm;
   }

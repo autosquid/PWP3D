@@ -32,13 +32,13 @@ void shutdownCUDA()
 
 void registerObjectImage(Object3D* object, View3D* view, bool renderingFromGPU, bool isMultobject)
 {
-  //  printf("\n== registerObjectImage ==\n");
+  printf("\n== registerObjectImage ==\n");
   int viewId = view->viewId;
 
   int *roiGenerated = object->roiGenerated[viewId];
   int *roiNormalised = object->roiNormalised[viewId];
 
-  //  printf("roiGenerated is %d, %d, %d, %d, %d, %d; \n", roiGenerated[0], roiGenerated[1], roiGenerated[2], roiGenerated[3], roiGenerated[4], roiGenerated[5]);
+  printf("roiGenerated is %d, %d, %d, %d, %d, %d; \n", roiGenerated[0], roiGenerated[1], roiGenerated[2], roiGenerated[3], roiGenerated[4], roiGenerated[5]);
 
   int widthROI, heightROI, widthFull;
   widthROI = roiGenerated[4]; heightROI = roiGenerated[5];
@@ -132,8 +132,12 @@ void processDTSihluetteLSDXDY(Object3D* object, View3D* view, int bandSize)
   float *dtDXGPUROI = object->dtDX[viewId]->pixelsGPU;
   float *dtDYGPUROI = object->dtDY[viewId]->pixelsGPU;
 
+  // to debug, let us draw this
+
   computeSihluette(objectsGPUROI, sihluetteGPUROI, roi[4], roi[5], 1.0f);
+
   processDT(dtGPUROI, dtPosXGPUROI, dtPosYGPUROI, sihluetteGPUROI, objectsGPUROI, roi, bandSize);
+
   computeDerivativeXY(dtGPUROI, dtDXGPUROI, dtDYGPUROI, roi[4], roi[5]);
 }
 
