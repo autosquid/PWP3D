@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 	//result visualisation
 	ImageUChar4* ResultImage = new ImageUChar4(width, height);
 
-	//objects allocation + initialisation: 3d model in obj required
-	Object3D **objects = new Object3D*[objectCount];
+  //objects allocation + initialisation: 3d model in obj required
+  Object3D **objects = new Object3D*[objectCount];
 
 	cout << "\n==[APP] Init Model ==" << endl;
 	objects[objectIdx] = new Object3D(objectId, viewCount, (char*)tins.sModelPath.c_str(), width, height);
