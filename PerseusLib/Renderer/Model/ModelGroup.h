@@ -5,6 +5,7 @@
 #include <PerseusLib/Renderer/Model/ModelVertex.h>
 
 //#include <vector>
+#include <string>
 
 namespace Renderer
 {
@@ -15,9 +16,9 @@ class ModelGroup
 public:
 
   std::vector<ModelFace*> faces;
-  char* groupName;
+  std::string groupName;
 
-  ModelGroup(char* groupName);
+  ModelGroup(std::string groupName);
   ModelGroup(void);
   ~ModelGroup(void);
 };

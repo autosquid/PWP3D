@@ -48,6 +48,10 @@ public:
     vectorOutput[2] = matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2] + matrix[14] * vector[3];
     vectorOutput[3] = matrix[3] * vector[0] + matrix[7] * vector[1] + matrix[11] * vector[2] + matrix[15] * vector[3];
 
+	if (fabs(vectorOutput[3]) < 1e-16){
+		bool falst = false;
+	}
+
     float norm = 1.0f/vectorOutput[3];
     for (int i = 0; i < 4; i++) vectorOutput[i] *= norm;
   }

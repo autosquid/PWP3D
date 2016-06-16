@@ -9,6 +9,8 @@
 #include <PerseusLib/Optimiser/EFs/IEnergyFunction.h>
 #include <PerseusLib/Optimiser/EFs/EFStandard.h>
 
+#include <vector>
+
 using namespace PerseusLib::Primitives;
 using namespace PerseusLib::Objects;
 using namespace PerseusLib::Utils;

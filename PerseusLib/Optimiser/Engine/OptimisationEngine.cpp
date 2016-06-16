@@ -1,6 +1,11 @@
 #include "OptimisationEngine.h"
-
+#include <chrono>
+#include <boost/format.hpp>
 #include <PerseusLib/CUDA/CUDAEngine.h>
+#include "PerseusLib/Utils/VisualisationEngine.h"
+#include <string>
+#include <opencv2/opencv.hpp>
+
 
 using namespace PerseusLib::Optimiser;
 
@@ -19,8 +24,8 @@ void OptimisationEngine::Initialise(int width, int height)
 
   objectCount = new int[PERSEUS_MAX_VIEW_COUNT];
 
-  stepSizes = new StepSize3D*[8];
-  for (i=0; i<8; i++) stepSizes[i] = new StepSize3D();
+  stepSizes = new StepSize3D*[10];
+  for (i=0; i<10; i++) stepSizes[i] = new StepSize3D();
 
   energyFunction_standard = new EFStandard();
 
@@ -38,11 +43,11 @@ void OptimisationEngine::Shutdown()
 
   shutdownCUDA();
 
-  for (i=0; i<8; i++) delete stepSizes[i];
+  for (i=0; i<10; i++) delete stepSizes[i];
 
   delete objectCount;
 
-  delete stepSizes;
+  delete []stepSizes;
   delete energyFunction_standard;
 
   MathUtils::Instance()->DeallocateHeaviside();
@@ -65,12 +70,16 @@ void OptimisationEngine::SetPresetStepSizes()
 
   stepSizes[6]->tX = -0.001f; stepSizes[6]->tY = -0.001f; stepSizes[6]->tZ = -0.002f; stepSizes[6]->r = -0.0002f;
   stepSizes[7]->tX = -0.001f; stepSizes[7]->tY = -0.001f; stepSizes[7]->tZ = -0.002f; stepSizes[7]->r = -0.0002f;
+
+
+  stepSizes[8]->tX = -0.0005f; stepSizes[8]->tY = -0.0005f; stepSizes[8]->tZ = -0.0005f; stepSizes[8]->r = -0.0001f;
+  stepSizes[9]->tX = -0.0005f; stepSizes[9]->tY = -0.0005f; stepSizes[9]->tZ = -0.0005f; stepSizes[9]->r = -0.0001f;
 }
 
 void OptimisationEngine::RegisterViewImage(View3D *view, ImageUChar4* image)
 {
-  ImageUtils::Instance()->Copy(image, view->imageRegistered);
-  view->imageRegistered->UpdateGPUFromCPU();
+	ImageUtils::Instance()->Copy(image, view->imageRegistered);
+	view->imageRegistered->UpdateGPUFromCPU();
 }
 
 void OptimisationEngine::Minimise(Object3D **objects, View3D **views, IterationConfiguration *iterConfig)
@@ -100,76 +109,115 @@ void OptimisationEngine::Minimise(Object3D **objects, View3D **views, IterationC
   ////////// rouned iteration
   for (iterIdx=0; iterIdx< iterConfig->iterCount; iterIdx++)
   {
-    this->RunOneMultiIteration(iterConfig);
+	  std::cout << "[opt:] " << "round" << ' ' << iterIdx << " begin"<< std::endl;
+	  this->RunOneMultiIteration(iterConfig);
+
+	  {
+		  auto tmili = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
+		  auto filename = boost::str(boost::format("%s_%d_iter_%d_%s") % iterConfig->idstr % iterIdx % 0 % std::to_string(tmili));
+
+		  {
+			  ImageUChar4* ResultImage = new ImageUChar4(1920, 1080);
+			  VisualisationEngine::Instance()->GetImage(ResultImage, GETIMAGE_DT, objects[0], views[0], objects[0]->pose[0]);
+			  cv::Mat ResultMat(1080, 1920, CV_8UC4, ResultImage->pixels);
+
+			  cv::imwrite(filename + ".png", ResultMat);
+			  delete ResultImage;
+		  }
+
+		  {
+			  ImageUChar4* ResultImage = new ImageUChar4(1920, 1080);
+			  VisualisationEngine::Instance()->GetImage(ResultImage, GETIMAGE_SIHLUETTE, objects[0], views[0], objects[0]->pose[0]);
+			  cv::Mat ResultMat2(1080, 1920, CV_8UC4, ResultImage->pixels);
+
+			  cv::imwrite(filename + "_sil.png", ResultMat2);
+			  delete ResultImage;
+		  }
+	  }
+
+	  std::cout << "[opt:] " << "round" << ' ' << iterIdx << " end" << std::endl;
+
   }
 }
 
 
 void OptimisationEngine::MinimiseSingle(Object3D **objects, View3D **views, IterationConfiguration *iterConfig, int nIterNum)
 {
-  int objectIdx, viewIdx, iterIdx;
+	int objectIdx, viewIdx, iterIdx;
 
-  this->iterConfig = iterConfig;
+	this->iterConfig = iterConfig;
 
-  viewCount = iterConfig->iterViewCount;
-  for (viewIdx=0; viewIdx<viewCount; viewIdx++)
-  {
-    this->views[viewIdx] = views[iterConfig->iterViewIds[viewIdx]];
-    this->objectCount[viewIdx] = iterConfig->iterObjectCount[viewIdx];
-  }
+	viewCount = iterConfig->iterViewCount;
+	for (viewIdx = 0; viewIdx < viewCount; viewIdx++)
+	{
+		this->views[viewIdx] = views[iterConfig->iterViewIds[viewIdx]];
+		this->objectCount[viewIdx] = iterConfig->iterObjectCount[viewIdx];
+	}
 
-  for (viewIdx=0; viewIdx<viewCount; viewIdx++) for (objectIdx=0; objectIdx<objectCount[viewIdx]; objectIdx++)
-  {
-    this->objects[viewIdx][objectIdx] = objects[iterConfig->iterObjectIds[viewIdx][objectIdx]];
-    this->objects[viewIdx][objectIdx]->initialPose[viewIdx]->CopyInto(this->objects[viewIdx][objectIdx]->pose[viewIdx]);
-    this->objects[viewIdx][objectIdx]->UpdateRendererFromPose(views[viewIdx]);
-  }
+	for (viewIdx = 0; viewIdx < viewCount; viewIdx++) for (objectIdx = 0; objectIdx < objectCount[viewIdx]; objectIdx++)
+	{
+		this->objects[viewIdx][objectIdx] = objects[iterConfig->iterObjectIds[viewIdx][objectIdx]];
+		this->objects[viewIdx][objectIdx]->initialPose[viewIdx]->CopyInto(this->objects[viewIdx][objectIdx]->pose[viewIdx]);
+		this->objects[viewIdx][objectIdx]->UpdateRendererFromPose(views[viewIdx]);
+	}
 
-  energyFunction = energyFunction_standard;
+	energyFunction = energyFunction_standard;
 
-  for (iterIdx=0; iterIdx< iterConfig->iterCount; iterIdx++)
-  {
-    if(nIterNum >7 || nIterNum<0){
-      std::cout<<"fatal error! nIterNum must be from 0 to 7"<<std::endl;
-      exit(-1);
-    }
+	for (iterIdx = 0; iterIdx < iterConfig->iterCount; iterIdx++)
+	{
+		if (nIterNum > 7 || nIterNum < 0){
+			std::cout << "fatal error! nIterNum must be from 0 to 7" << std::endl;
+			exit(-1);
+		}
 
-    this->RunOneSingleIteration(stepSizes[nIterNum], iterConfig); if (this->HasConverged()) return;
-  }
+		this->RunOneSingleIteration(stepSizes[nIterNum], iterConfig); if (this->HasConverged()) return;
+	}
 }
 
 void OptimisationEngine::RunOneMultiIteration(IterationConfiguration* iterConfig)
 {
-  this->RunOneSingleIteration(stepSizes[0], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[1], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[2], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[3], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[4], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[5], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[6], iterConfig); if (this->HasConverged()) return;
-  this->NormaliseRotation();
-  this->RunOneSingleIteration(stepSizes[7], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[0], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[1], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[2], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[3], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[4], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[5], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[6], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[7], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[8], iterConfig); if (this->HasConverged()) return;
+	this->RunOneSingleIteration(stepSizes[9], iterConfig); if (this->HasConverged()) return;
 
-  this->NormaliseRotation();
+	this->NormaliseRotation();
 }
 
 void OptimisationEngine::RunOneSingleIteration(StepSize3D* presetStepSize, IterationConfiguration* iterConfig)
 {
-  auto pose = objects[0][0]->pose;
-  energyFunction->PrepareIteration(objects, objectCount, views, viewCount, iterConfig);
+	energyFunction->PrepareIteration(objects, objectCount, views, viewCount, iterConfig);
 
-  pose = objects[0][0]->pose;
-  // update the pose of the object
-  energyFunction->GetFirstDerivativeValues(objects, objectCount, views, viewCount, iterConfig);
+	// update the pose of the object
+	energyFunction->GetFirstDerivativeValues(objects, objectCount, views, viewCount, iterConfig);
 
-  pose = objects[0][0]->pose;
-  this->DescendWithGradient(presetStepSize, iterConfig);
+	this->DescendWithGradient(presetStepSize, iterConfig);
+
+	if(false){
+		auto tmili = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now().time_since_epoch()).count();
+		auto filename = boost::str(boost::format("iter_%s") % std::to_string(tmili));
+
+		ImageUChar4* ResultImage = new ImageUChar4(1920, 1080);
+
+		VisualisationEngine::Instance()->GetImage(ResultImage, GETIMAGE_DT, objects[0][0], views[0], objects[0][0]->pose[0]);
+		  cv::Mat ResultMat(1080, 1920, CV_8UC4, ResultImage->pixels);
+
+		  cv::imwrite(filename + ".png", ResultMat);
+		  delete ResultImage;
+
+		  ResultImage = new ImageUChar4(1920, 1080);
+		  VisualisationEngine::Instance()->GetImage(ResultImage, GETIMAGE_SIHLUETTE, objects[0][0], views[0], objects[0][0]->pose[0]);
+		  cv::Mat ResultMat2(1080, 1920, CV_8UC4, ResultImage->pixels);
+
+		  cv::imwrite(filename + "_sil.png", ResultMat2);
+		  delete ResultImage;
+	  }
 }
 
 void OptimisationEngine::DescendWithGradient(StepSize3D *presetStepSize, IterationConfiguration *iterConfig)
@@ -184,6 +232,21 @@ void OptimisationEngine::DescendWithGradient(StepSize3D *presetStepSize, Iterati
     actualStepSize.tX = presetStepSize->tX * objects[viewIdx][objectIdx]->stepSize[viewIdx]->tX;
     actualStepSize.tY = presetStepSize->tY * objects[viewIdx][objectIdx]->stepSize[viewIdx]->tY;
     actualStepSize.tZ = presetStepSize->tZ * objects[viewIdx][objectIdx]->stepSize[viewIdx]->tZ;
+
+	if (isfinite(objects[viewIdx][objectIdx]->dpose[views[viewIdx]->viewId]->translation->z)==false){
+		bool flag = false;
+
+
+
+
+	}
+
+
+
+	if (isfinite(objects[viewIdx][objectIdx]->dpose[views[viewIdx]->viewId]->rotation->vector4d.z)==false){
+		bool flag = false;
+	}
+
 
     switch (iterConfig->iterTarget[0])
     {

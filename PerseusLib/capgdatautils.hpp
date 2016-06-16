@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/assert.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 
 
 struct ProjConst {
@@ -63,7 +64,7 @@ PWP3DInput capgDs<PWP3DInput>(std::string dsname, int vidx){
     */
     PWP3DInput in;
 
-    in.sModelPath =std::string(ProjConst::project_root) + "/Files/Models/Renderer/antenna.obj";
+    in.sModelPath =std::string(ProjConst::project_root) + "/Files/Models/Renderer/untitled.obj";
 
     in.sSrcImage = boost::str(boost::format("%s/%s/%s/pic_%d.bmp") % ProjConst::project_root % "Files/fan/Images" % dsname % vidx);
     in.sHistSrc = in.sSrcImage; //this is the same as src
@@ -122,3 +123,15 @@ struct CamInfo{
         return cinfo;
     }
 };
+
+inline
+int nextValidIdx(int prev_vp, std::string dsname){
+	int next_vp;
+	for (next_vp = prev_vp + 1;; ++next_vp){
+		auto tins = capgDs<PWP3DInput>(dsname, next_vp);
+		if (boost::filesystem::exists(tins.sSrcImage)){
+			break;
+		}
+	}
+	return next_vp;
+}

@@ -139,6 +139,7 @@ void processDTSihluetteLSDXDY(Object3D* object, View3D* view, int bandSize)
   processDT(dtGPUROI, dtPosXGPUROI, dtPosYGPUROI, sihluetteGPUROI, objectsGPUROI, roi, bandSize);
 
   computeDerivativeXY(dtGPUROI, dtDXGPUROI, dtDYGPUROI, roi[4], roi[5]);
+
 }
 
 void processAndGetEFFirstDerivatives(Object3D* object, View3D* view, bool isMultiobject)

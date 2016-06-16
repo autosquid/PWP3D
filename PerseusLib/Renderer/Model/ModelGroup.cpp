@@ -12,10 +12,9 @@ ModelGroup::~ModelGroup(void)
   size_t i;
   for (i=0;i<faces.size();i++)
     delete faces[i];
-  //delete groupName;
 }
 
-ModelGroup::ModelGroup(char* groupName)
+ModelGroup::ModelGroup(const std::string groupName)
 {
-  this->groupName = strdup(groupName);
+  this->groupName = groupName;
 }

@@ -3,6 +3,7 @@
 #include <PerseusLib/Objects/Pose3D.h>
 #include <PerseusLib/Objects/StepSize3D.h>
 #include <PerseusLib/Others/PerseusLibDefines.h>
+#include <string>
 
 using namespace PerseusLib::Objects;
 
@@ -43,6 +44,7 @@ public:
 
   bool useCUDARender;
   bool useCUDAEF;
+ std::string idstr;
 
   IterationConfiguration(void) {
     int i;

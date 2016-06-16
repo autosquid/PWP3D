@@ -142,7 +142,7 @@ int Model::createFromFile(FILE *file)
     verticesVector[j+1] = vertices[i].vector3d.y;
     verticesVector[j+2] = vertices[i].vector3d.z;
 
-    if (this->minZ < vertices[i].vector3d.z)
+    if (this->minZ > vertices[i].vector3d.z)
       this->minZ = vertices[i].vector3d.z;
 
     verticesVector[j+3] = 1;
@@ -225,8 +225,7 @@ Model* Model::Clone()
   newModel->faceCount = this->faceCount;
   for (i=0; i<this->groups.size(); i++)
   {
-    char* newGroupName =  strdup(this->groups[i]->groupName);
-    ModelGroup *group = new ModelGroup(newGroupName);
+    ModelGroup *group = new ModelGroup(this->groups[i]->groupName);
     for (j=0; j<this->groups[i]->faces.size(); j++)
     {
       ModelFace* face = new ModelFace();
